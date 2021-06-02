@@ -6,6 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 // import Carousel from 'react-bootstrap/Carousel';
 import { withAuth0 } from '@auth0/auth0-react';
 import axios from 'axios'
+import Update from './Update';
 // const axios = require ('axios');
 
 class BestBooks extends React.Component {
@@ -15,11 +16,12 @@ class BestBooks extends React.Component {
       book: [],
       showBooks: true,
       showModal: false,
-      server: 'http://localhost:3001',
+      server: process.env.REACT_APP_SERVER_URL,
       name: '',
       img: '',
       description: '',
-      status: ''
+      status: '',
+      showUpdate:false
     }
   }
 
@@ -47,8 +49,7 @@ class BestBooks extends React.Component {
     
 
   }
-
-
+  
   updateName = (event) => {
     this.setState({
       name: event.target.value
@@ -93,19 +94,75 @@ class BestBooks extends React.Component {
     const email={
       email: this.props.auth0.user.email,
     }
-    let newbook = await axios.delete(`${this.state.server}/deleteBook/${index}`,{params:email})
+    let newbook = await axios.delete(`${this.state.server}/deleteBook/${this.state.index}`,{params:email})
     this.setState({
       book: newbook.data
+    })
+  }
+  
+  handleCloseModal = () => {
+    
+    this.setState({
+      
+      showUpdate:false
+    })
+  }
+  updateShowHandler = (idx)=>{
+    const chosenBook= this.state.book.filter((item,index)=>{
+      return idx===index;
+    })
+    console.log(chosenBook);
+    this.setState({
+      showUpdate: true,
+      index:idx,
+// email:this.props.auth0.user.email,
+name: chosenBook[0].name,
+description: chosenBook[0].description,
+img: chosenBook[0].img,
+status: chosenBook[0].status,
+
+})
+
+  }
+
+  updateBook=async(e)=>{
+    e.preventDefault();
+    const bookData={
+      email:this.props.auth0.user.email,
+      name: this.state.name,
+      description: this.state.description,
+      img: this.state.img,
+      status: this.state.status,
+    }
+    let bookUpdateData= await axios.put(`${this.state.server}/updateBook/${this.state.index}`,bookData)
+
+    this.setState({
+      book:bookUpdateData.data
     })
   }
   
   render() {
     return (
       <>
+
             <Button variant="primary" onClick={this.handleShow}>
           Add Books
       </Button>
+<Update
+handleShowUpdate={this.handleShowUpdate}
+handleCloseModal={this.handleCloseModal}
 
+img={this.state.img}
+name={this.state.name}
+description={this.state.description}
+status={this.state.status}
+updateBook={this.updateBook}
+updateName={this.updateName}
+updateDesc={this.updateDesc}
+updateURL={this.updateURL}
+updateStatus={this.updateStatus}
+showUpdate={this.state.showUpdate}
+/>
         <Modal
           show={this.state.showModal}
           onHide={this.handleClose}
@@ -157,9 +214,9 @@ class BestBooks extends React.Component {
                     </p>
                   </Card.Text>
                   <Button onClick={()=>this.deleteHandler(index)} variant="primary">Delete Book</Button>
+                  <Button onClick={()=>this.updateShowHandler(index)} variant="primary">Update Data</Button>
                 </Card.Body>
               </Card>
-
 
             )
           })
