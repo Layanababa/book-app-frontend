@@ -28,7 +28,7 @@ class BestBooks extends React.Component {
 
   componentDidMount = async () => {
     const { user } = this.props.auth0;
-    let book = await axios.get(`${process.env.REACT_APP_SERVER_URL}/book`, { params: { email:user.email } });
+    let book = await axios.get(`${process.env.REACT_SERVER}/book`, { params: { email:user.email } });
     console.log(book.data);
     this.setState({
       book: book.data,
@@ -85,7 +85,7 @@ class BestBooks extends React.Component {
       
     }
     
-    const newbook = await axios.post(`${process.env.REACT_APP_SERVER_URL}/addBook`, bookFormData)
+    const newbook = await axios.post(`${process.env.RREACT_SERVER}/addBook`, bookFormData)
     this.setState({
       book: newbook.data
     })
@@ -95,7 +95,7 @@ class BestBooks extends React.Component {
     const email={
       email: this.props.auth0.user.email,
     }
-    let newbook = await axios.delete(`${process.env.REACT_APP_SERVER_URL}/deleteBook/${this.state.index}`,{params:email})
+    let newbook = await axios.delete(`${process.env.REACT_SERVER}/deleteBook/${this.state.index}`,{params:email})
     this.setState({
       book: newbook.data
     })
@@ -135,7 +135,7 @@ status: chosenBook[0].status,
       img: this.state.img,
       status: this.state.status,
     }
-    let bookUpdateData= await axios.put(`${process.env.REACT_APP_SERVER_URL}/updateBook/${this.state.index}`,bookData)
+    let bookUpdateData= await axios.put(`${process.env.REACT_SERVER}/updateBook/${this.state.index}`,bookData)
 
     this.setState({
       book:bookUpdateData.data
